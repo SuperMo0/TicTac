@@ -23,8 +23,9 @@ let Board = (function () {
     }
     function CheckWin() {
         let WinExist = false;
+
         Wining_States.forEach(function (State) {
-            if (CheckState(State)) WinExist = true;
+            if (CheckState(State)) WinExist = State;
         })
         return WinExist;
     }
@@ -33,7 +34,6 @@ let Board = (function () {
         Played_Rounds = 0;
     }
     function CheckFull() {
-        console.log(Played_Rounds);
         return (Played_Rounds == 9);
     }
     return { PlayRound, CheckWin, ResetBoard, CheckFull };
@@ -77,7 +77,8 @@ let Game = (function Game() {
         let Round_status = Board.PlayRound(Current_Player, ix);
         if (!Round_status) return; //  to highlight reset button
         UIX.SetCell(ix, Current_Player.Marker);
-        if (Board.CheckWin()) { UIX.ShowWinner(Current_Player); Ended = true; }
+        let State = Board.CheckWin();
+        if (State) { UIX.ShowWinner(Current_Player, State); Ended = true; }
         else if (Board.CheckFull()) { UIX.ShowTie(); Ended = true; }
         else Current_Player = (Current_Player == Player1) ? Player2 : Player1;
     }
@@ -98,7 +99,7 @@ let UIX = (function UI() {
     let Cells_Array = document.querySelectorAll(".cell");
 
     function Reset() {
-        Cells_Array.forEach(function (cell) { cell.textContent = " " });
+        Cells_Array.forEach(function (cell) { cell.textContent = " "; cell.style["background-color"] = "white" });
         Text.textContent = "";
     }
     function SetCell(ix, symbol) {
@@ -118,8 +119,9 @@ let UIX = (function UI() {
     function GetName2() {
         return Player2_Name.value;
     }
-    function ShowWinner(player) {
+    function ShowWinner(player, State) {
         Text.textContent = `Congrats ${player.Name} You won the round 🏆`;
+        State.forEach(function (ix) { Cells_Array[ix].style["background-color"] = "lightgreen"; })
     }
 
     function ShowTie() {
@@ -134,9 +136,12 @@ let UIX = (function UI() {
 
     })()
 
-
     return { ShowGame, GetName1, GetName2, Reset, ShowWinner, ShowTie, SetCell };
 
 
 })()
+
+
+
+
 
